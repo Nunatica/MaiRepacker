@@ -46,6 +46,12 @@ namespace MaiRepacker
             }
         }
 
+        static string ConvertToWorkPath(string f)
+        {
+            var idx = f.IndexOf(Path.DirectorySeparatorChar, path_input.Length + 1);
+            return path_work + f.Substring(idx);
+        }
+
         static void ProcessEachFile(string dir)
         {
             //Console.WriteLine("Working directory: " + dir.Substring(Environment.CurrentDirectory.Length));
@@ -67,10 +73,7 @@ namespace MaiRepacker
 
                 var info = new FileInfo(f);
                 if (info.Length > FileSizeThreshold)
-                {
-                    var t = path_work + f.Substring(dir.Length);
-                    File.Move(f, t);
-                }
+                    File.Move(f, ConvertToWorkPath(f));
                 else
                     remaining_entry += 1;
             }
@@ -130,6 +133,7 @@ namespace MaiRepacker
             while (!Directory.Exists(path_work)) { Thread.Sleep(100); }
             CloneDirectoryStructure(dir, path_work);
 
+            ProcessEachFile(dir);
             foreach (var d in Directory.GetDirectories(dir))
             {
                 if (d.Contains("sce_module")) continue;
